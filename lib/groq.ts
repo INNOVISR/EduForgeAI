@@ -1,0 +1,23 @@
+export async function generateAI(type: string, data: any) {
+  const prompt = `Create a ${type} for ${data.grade} ${data.subject} on ${data.topic}`;
+
+  const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      model: "llama-3.3-70b-versatile",
+      messages: [{ role: "user", content: prompt }]
+    })
+  });
+
+  const json = await res.json();
+
+  if (!json.choices) {
+    throw new Error("Groq failed");
+  }
+
+  return json.choices[0].message.content;
+}
